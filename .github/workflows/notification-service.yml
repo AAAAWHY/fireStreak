@@ -2,7 +2,11 @@ name: Notification Service CI
 
 on:
   push:
-    branches: [main]
+    branches: [ "*" ]
+    paths:
+      - 'notification-service/**'
+  pull_request:
+    branches: [ "*" ]
     paths:
       - 'notification-service/**'
 
