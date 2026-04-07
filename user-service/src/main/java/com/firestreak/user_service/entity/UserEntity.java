@@ -1,15 +1,14 @@
 package com.firestreak.user_service.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Entity
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserEntity {
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
@@ -36,5 +35,4 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     Role role;
-    //test ci cd
 }
