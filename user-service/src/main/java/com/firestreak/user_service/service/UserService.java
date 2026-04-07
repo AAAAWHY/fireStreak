@@ -1,6 +1,7 @@
 package com.firestreak.user_service.service;
 
 
+import com.firestreak.user_service.dto.*;
 import com.firestreak.user_service.entity.UserEntity;
 import com.firestreak.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +17,17 @@ public class UserService {
 
 
     //пока не добавил валидацию на то что пароль больше 4 символо и что имейл это действительно имейл думаю эт длеать в дто
-    public void register(String email, String login, String password, String username){
+    public RegisterResponse register(RegisterRequest request){
+        String login = request.login();
+        String password = request.password();;
+        String email = request.email();
+        String username = request.username();
+
         if(!userRepository.findByLogin(login).isEmpty())
-            return; //change with dto
+            return  RegisterResponse.builder().
+                    success(false)
+                    .error("User with this login already exists")
+                    .build();
 
         String passwordHash = passwordEncoder.encode(password);
         UserEntity user = UserEntity.builder()
@@ -29,38 +38,72 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
+        return RegisterResponse.builder()
+                .success(true)
+                .jwt("mock jwt")
+                .error("")
+                .build();
     }
 
 
-    public void login(String identifier, String password){
+    public LoginResponse login(LoginRequest request){
+        String identifier = request.identifier();
+        String password = request.password();
+
         UserEntity user;
         if(identifier.contains("@")) {
             user = userRepository.findByEmail(identifier).orElse(null);
-            if (user == null) return; //аналогично потом возвращать дто с ошибкой
+            if (user == null)
+                return LoginResponse.builder()
+                    .success(false)
+                    .error("User with this login/email not found")
+                    .build();
         }
         else {
             user = userRepository.findByLogin(identifier).orElse(null);
-            if (user == null) return; //аналогично потом возвращать дто с ошибкой
+            if (user == null)
+                return LoginResponse.builder()
+                        .success(false)
+                        .error("User with this login/email not found")
+                        .build();
         }
         if(passwordEncoder.matches(password,user.getPasswordHash()))
-            return; //dto with jwt
+            return LoginResponse.builder()
+                    .success(true)
+                    .jwt("jwt mock")
+                    .build();
         else
-            return; //dto with error
+            return LoginResponse.builder()
+                    .success(false)
+                    .error("Wrong password")
+                    .build();
     }
 
 
 
-    public void changePassword(Long id, String CurPassword, String newPassword){
-        UserEntity user = userRepository.findById(id).orElse(null);
-        if(user==null) return; //fail dto
+    public ChangePasswordResponse changePassword(Long id, ChangePasswordRequest request){
+        String curPassword = request.curPassword();
+        String newPassword = request.newPassword();
 
-        if(passwordEncoder.matches(CurPassword, user.getPasswordHash())) {
+        UserEntity user = userRepository.findById(id).orElse(null);
+        if(user==null)
+            return ChangePasswordResponse.builder()
+                    .success(false)
+                    .error("User with this id not found")
+                    .build();
+
+        if(passwordEncoder.matches(curPassword, user.getPasswordHash())) {
             String newPasswordHash = passwordEncoder.encode(newPassword);
             user.setPasswordHash(newPasswordHash);
             userRepository.save(user);
-            return; //success dto
+            return ChangePasswordResponse.builder()
+                    .success(true)
+                    .build();
         }
         else
-            return; //fail dto
+            return ChangePasswordResponse.builder()
+                    .success(false)
+                    .error("Current password is wrong")
+                    .build();
     }
 }
