@@ -1,3 +1,21 @@
 spring:
   application:
     name: user-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/user_service
+    username: root
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      open-in-view: false
+
+  thymeleaf:
+    check-template-location: false
+
+eureka:
+  client:
+    enabled: false
+
