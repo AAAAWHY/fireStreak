@@ -36,4 +36,5 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     Role role;
+    //test ci cd
 }
