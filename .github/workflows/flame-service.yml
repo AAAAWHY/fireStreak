@@ -2,7 +2,11 @@ name: Flame Service CI
 
 on:
   push:
-    branches: [main]
+    branches: [ "*" ]
+    paths:
+      - 'flame-service/**'
+  pull_request:
+    branches: [ "*" ]
     paths:
       - 'flame-service/**'
 
