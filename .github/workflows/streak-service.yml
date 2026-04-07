@@ -2,7 +2,11 @@ name: Streak Service CI
 
 on:
   push:
-    branches: [main]
+    branches: [ "*" ]
+    paths:
+      - 'streak-service/**'
+  pull_request:
+    branches: [ "*" ]
     paths:
       - 'streak-service/**'
 

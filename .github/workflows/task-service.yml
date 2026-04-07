@@ -2,7 +2,11 @@ name: Task Service CI
 
 on:
   push:
-    branches: [main]
+    branches: [ "*" ]
+    paths:
+      - 'task-service/**'
+  pull_request:
+    branches: [ "*" ]
     paths:
       - 'task-service/**'
 
