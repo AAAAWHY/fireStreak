@@ -2,6 +2,7 @@ package com.firestreak.user_service.service;
 
 
 import com.firestreak.user_service.dto.*;
+import com.firestreak.user_service.entity.Role;
 import com.firestreak.user_service.entity.UserEntity;
 import com.firestreak.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class UserService {
                 .login(login)
                 .passwordHash(passwordHash)
                 .username(username)
+                .role(Role.USER)
                 .build();
 
         userRepository.save(user);

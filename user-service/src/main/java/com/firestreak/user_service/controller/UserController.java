@@ -20,10 +20,12 @@ public class UserController {
     RegisterResponse registration(@RequestBody @Valid RegisterRequest request){
         return userService.register(request);
     }
+
     @PostMapping(path = "login")
     LoginResponse login(@RequestBody @Valid LoginRequest request){
         return userService.login(request);
     }
+
     @PostMapping(path = "change-password")
     ChangePasswordResponse changePassword (@RequestBody @Valid ChangePasswordRequest request){
         Long id = 1L; //change later and get id from jwt
