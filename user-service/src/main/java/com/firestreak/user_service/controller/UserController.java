@@ -5,10 +5,7 @@ import com.firestreak.user_service.dto.*;
 import com.firestreak.user_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,8 +24,9 @@ public class UserController {
     }
 
     @PostMapping(path = "change-password")
-    ChangePasswordResponse changePassword (@RequestBody @Valid ChangePasswordRequest request){
-        Long id = 1L; //change later and get id from jwt
-        return userService.changePassword(id, request);
+    ChangePasswordResponse changePassword (
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody @Valid ChangePasswordRequest request){
+        return userService.changePassword(authHeader, request);
     }
 }
