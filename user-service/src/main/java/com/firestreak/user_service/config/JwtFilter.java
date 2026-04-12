@@ -29,6 +29,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
         jwtToken = jwtToken.substring(7);
+        if(!jwtService.checkToken(jwtToken)) {
+            response.sendError(401, "invalid jwt");
+            return;
+        }
         Long userId = jwtService.extractId(jwtToken);
         SimpleGrantedAuthority role = new SimpleGrantedAuthority("ROLE_" + jwtService.extractData(jwtToken, JWTField.ROLE, String.class));
         Authentication auth = new UsernamePasswordAuthenticationToken(userId, null, List.of(role));

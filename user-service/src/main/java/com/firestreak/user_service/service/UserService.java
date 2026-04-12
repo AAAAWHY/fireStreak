@@ -2,13 +2,16 @@ package com.firestreak.user_service.service;
 
 
 import com.firestreak.user_service.dto.*;
-import com.firestreak.user_service.enums.JWTField;
 import com.firestreak.user_service.enums.Role;
 import com.firestreak.user_service.entity.UserEntity;
 import com.firestreak.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @Service
@@ -25,13 +28,13 @@ public class UserService {
         String email = request.email();
         String username = request.username();
 
-        if(!userRepository.findByLogin(login).isEmpty())
+        if(userRepository.findByLogin(login).isPresent())
             return  RegisterResponse.builder().
                     success(false)
                     .error("User with this login already exists")
                     .build();
 
-        if(!userRepository.findByEmail(email).isEmpty())
+        if(userRepository.findByEmail(email).isPresent())
             return  RegisterResponse.builder().
                     success(false)
                     .error("User with this email already exists")
@@ -89,37 +92,13 @@ public class UserService {
 
 
 
-    public ChangePasswordResponse changePassword(String jwtToken, ChangePasswordRequest request){
+    public ChangePasswordResponse changePassword(ChangePasswordRequest request){
         String curPassword = request.curPassword();
         String newPassword = request.newPassword();
 
-//        if(jwtToken==null || !jwtToken.startsWith("Bearer ")) {
-//            jwtToken = jwtToken.substring(7);
-//        } else return ChangePasswordResponse.builder()
-//                    .success(false)
-//                    .error("invalid JWT")
-//                    .build();
-        if(jwtToken == null)
-            return ChangePasswordResponse.builder()
-                    .success(false)
-                    .error("null JWT")
-                    .build();
+        Long id = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if(!jwtToken.startsWith("Bearer "))
-            return ChangePasswordResponse.builder()
-                    .success(false)
-                    .error("invalid JWT1")
-                    .build();
-        jwtToken = jwtToken.substring(7);
-
-        Long id = jwtService.extractId(jwtToken);
-
-        UserEntity user = userRepository.findById(id).orElse(null);
-        if(user==null)
-            return ChangePasswordResponse.builder()
-                    .success(false)
-                    .error("User with this id not found")
-                    .build();
+        UserEntity user = userRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found to change password"));
 
         if(passwordEncoder.matches(curPassword, user.getPasswordHash())) {
             String newPasswordHash = passwordEncoder.encode(newPassword);

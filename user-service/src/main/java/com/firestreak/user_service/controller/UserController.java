@@ -5,6 +5,7 @@ import com.firestreak.user_service.dto.*;
 import com.firestreak.user_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,8 +26,7 @@ public class UserController {
 
     @PostMapping(path = "change-password")
     ChangePasswordResponse changePassword (
-            @RequestHeader("Authorization") String authHeader,
             @RequestBody @Valid ChangePasswordRequest request){
-        return userService.changePassword(authHeader, request);
+        return userService.changePassword(request);
     }
 }
