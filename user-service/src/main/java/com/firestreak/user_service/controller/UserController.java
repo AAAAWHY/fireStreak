@@ -6,6 +6,7 @@ import com.firestreak.user_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,18 +16,19 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping(path = "registration")
-    RegisterResponse registration(@RequestBody @Valid RegisterRequest request){
-        return userService.register(request);
+    ResponseEntity<String> registration(@RequestBody @Valid RegisterRequest request){
+        return ResponseEntity.ok(userService.register(request));
     }
 
     @PostMapping(path = "login")
-    LoginResponse login(@RequestBody @Valid LoginRequest request){
-        return userService.login(request);
+    ResponseEntity<String> login(@RequestBody @Valid LoginRequest request){
+        return ResponseEntity.ok(userService.login(request));
     }
 
     @PostMapping(path = "change-password")
-    ChangePasswordResponse changePassword (
+    ResponseEntity<Void> changePassword (
             @RequestBody @Valid ChangePasswordRequest request){
-        return userService.changePassword(request);
+        userService.changePassword(request);
+        return ResponseEntity.noContent().build();
     }
 }
