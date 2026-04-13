@@ -1,5 +1,6 @@
 package com.firestreak.user_service.entity;
 
+import com.firestreak.user_service.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,7 +29,7 @@ public class UserEntity {
     String username;
 
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email",  unique = true, nullable = false)
     String email;
 
 
