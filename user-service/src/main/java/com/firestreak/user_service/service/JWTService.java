@@ -1,7 +1,6 @@
 package com.firestreak.user_service.service;
 
 import com.firestreak.user_service.enums.Role;
-import com.firestreak.user_service.enums.JWTField;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -48,13 +47,13 @@ public class JWTService {
         }
     }
 
-    public <T> T extractData(String token, JWTField jwtField, Class<T> type){
+    public <T> T extractData(String token, String claimName, Class<T> type){
         Claims claims = Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return claims.get(jwtField.name(), type);
+        return claims.get(claimName, type);
     }
 
     public Long extractId(String token){
