@@ -1,5 +1,6 @@
 package com.firestreak.user_service;
 
+import com.firestreak.user_service.dto.ChangePasswordRequest;
 import com.firestreak.user_service.dto.LoginRequest;
 import com.firestreak.user_service.dto.RegisterRequest;
 import com.firestreak.user_service.entity.UserEntity;
@@ -9,6 +10,7 @@ import com.firestreak.user_service.service.UserService;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import org.apache.http.client.HttpResponseException;
 import org.h2.engine.User;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,6 +28,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.net.http.HttpResponse;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +44,16 @@ public class UserServiceTest {
     JWTService jwtService;
     @InjectMocks
     UserService userService;
+
+    @Mock
+    SecurityContext securityContext;
+    @Mock
+    Authentication authentication;
+
+    @AfterEach
+    void reset(){
+        SecurityContextHolder.clearContext();
+    }
 
     @Test
     void register_success() {
@@ -168,10 +184,57 @@ public class UserServiceTest {
         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
+
     @Test
     void changePassword_success(){
+        String curPassword = "curPassword";
+        String newPassword = "newPassword";
+        Long id = 1L;
+        UserEntity savedUser = UserEntity.builder().passwordHash("PasswordHash").build();
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(id);
+        SecurityContextHolder.setContext(securityContext);
+        when(userRepository.findById(id)).thenReturn(Optional.of(savedUser));
+        when(passwordEncoder.matches(curPassword, savedUser.getPasswordHash())).thenReturn(true);
+        when(passwordEncoder.encode(newPassword)).thenReturn("newPasswordHash");
+        ChangePasswordRequest request = new ChangePasswordRequest(curPassword, newPassword);
+
+        assertDoesNotThrow(()-> userService.changePassword(request));
+        verify(userRepository).save(any());
+    }
 
 
+    @Test
+    void changePassword_wrongPassword(){
+        String curPassword = "curPassword";
+        String newPassword = "newPassword";
+        Long id = 1L;
+        UserEntity savedUser = UserEntity.builder().passwordHash("PasswordHash").build();
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(id);
+        SecurityContextHolder.setContext(securityContext);
+        when(userRepository.findById(id)).thenReturn(Optional.of(savedUser));
+        when(passwordEncoder.matches(curPassword, savedUser.getPasswordHash())).thenReturn(false);
+        ChangePasswordRequest request = new ChangePasswordRequest(curPassword, newPassword);
 
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, ()-> userService.changePassword(request));
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+
+    @Test
+    void changePassword_wrongId(){
+        String curPassword = "curPassword";
+        String newPassword = "newPassword";
+        Long id = 1L;
+        UserEntity savedUser = UserEntity.builder().passwordHash("PasswordHash").build();
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(id);
+        SecurityContextHolder.setContext(securityContext);
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+        ChangePasswordRequest request = new ChangePasswordRequest(curPassword, newPassword);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, ()-> userService.changePassword(request));
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 }
