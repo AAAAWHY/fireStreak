@@ -1,6 +1,5 @@
 package com.firestreak.user_service.config;
 
-import com.firestreak.user_service.enums.JWTField;
 import com.firestreak.user_service.service.JWTService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
         Long userId = jwtService.extractId(jwtToken);
-        SimpleGrantedAuthority role = new SimpleGrantedAuthority("ROLE_" + jwtService.extractData(jwtToken, JWTField.ROLE, String.class));
+        SimpleGrantedAuthority role = new SimpleGrantedAuthority("ROLE_" + jwtService.extractData(jwtToken, "role", String.class));
         Authentication auth = new UsernamePasswordAuthenticationToken(userId, null, List.of(role));
         SecurityContextHolder.getContext().setAuthentication(auth);
         filterChain.doFilter(request, response);

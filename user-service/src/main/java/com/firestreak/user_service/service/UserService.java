@@ -74,7 +74,7 @@ public class UserService {
 
         Long id = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        UserEntity user = userRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found to change password"));
+        UserEntity user = userRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found to change password"));
 
         if(passwordEncoder.matches(curPassword, user.getPasswordHash())) {
             String newPasswordHash = passwordEncoder.encode(newPassword);
