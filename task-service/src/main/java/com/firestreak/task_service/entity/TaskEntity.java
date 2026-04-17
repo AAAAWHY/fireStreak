@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class TaskEntity {
     @Id
     @Column(name = "id",unique = true,nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(name = "title", nullable = false)
