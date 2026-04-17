@@ -37,9 +37,6 @@ public class TaskEntity {
     @Column(name = "completedCount")
     Double completedCount;
 
-    @Column(name = "completed", nullable = false)
-    Boolean completed;
-
     @Column(name = "lastCompletedAt")
     LocalDateTime lastCompletedAt;
 
