@@ -44,6 +44,7 @@ public class TaskEntity {
     LocalDateTime lastCompletedAt;
 
     @Column(name = "taskType", nullable = false)
+    @Enumerated(value = EnumType.STRING)
     TaskType taskType;
 
     @Column(name = "folderId")
