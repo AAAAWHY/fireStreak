@@ -6,5 +6,5 @@ public record UpdateTaskRequest(String title,
                                 TaskType taskType,
                                 String description,
                                 Long frequencyMinutes,
-                                double targetCount,
+                                Double targetCount,
                                 Long folderId) {}

@@ -1,9 +1,13 @@
 package com.firestreak.task_service.dto;
 
+import com.firestreak.task_service.entity.TaskEntity;
 import com.firestreak.task_service.enums.TaskType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record TaskDto(
         Long id,
         String title,
@@ -16,4 +20,18 @@ public record TaskDto(
         TaskType taskType,
         Long folderId
 ) {
+    public static TaskDto from(TaskEntity task){
+        return TaskDto.builder()
+                .id(task.getId())
+                .completedCount(task.getCompletedCount())
+                .taskType(task.getTaskType())
+                .userId(task.getUserId())
+                .description(task.getDescription())
+                .targetCount(task.getTargetCount())
+                .frequencyMinutes(task.getFrequencyMinutes())
+                .lastCompletedAt(task.getLastCompletedAt())
+                .folderId(task.getFolderId())
+                .title(task.getTitle())
+                .build();
+    }
 }
