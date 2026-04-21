@@ -1,5 +1,6 @@
 package com.firestreak.task_service.service;
 
+import com.firestreak.task_service.dto.CompleteTaskDto;
 import com.firestreak.task_service.dto.CreateTaskRequest;
 import com.firestreak.task_service.dto.TaskDto;
 import com.firestreak.task_service.dto.UpdateTaskRequest;
@@ -55,13 +56,22 @@ public class TaskService {
         return tasks.stream().map(TaskDto::from).toList();
     }
 
-    public TaskDto completeTask(Long taskId, double count){
+    public TaskDto completeTask(Long taskId, CompleteTaskDto completeTaskDto){
         Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         TaskEntity task = taskRepository.findById(taskId).orElseThrow(()-> {
             return new TaskNotFoundException(taskId);
         });
         if(!task.getUserId().equals(userId))
             throw new TaskAccessDeniedException(taskId);
+        Double count;
+        if(task.getTaskType().equals(TaskType.BOOLEAN))
+            count = 1D;
+        else{
+            count = completeTaskDto.count();
+            if(count == null)
+                throw new TaskValidationException("Completed count is required");
+        }
+
         task.setCompletedCount(task.getCompletedCount()+count);
         task.setLastCompletedAt(LocalDateTime.now());
         taskRepository.save(task);

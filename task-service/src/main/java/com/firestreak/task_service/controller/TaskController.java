@@ -1,5 +1,6 @@
 package com.firestreak.task_service.controller;
 
+import com.firestreak.task_service.dto.CompleteTaskDto;
 import com.firestreak.task_service.dto.CreateTaskRequest;
 import com.firestreak.task_service.dto.TaskDto;
 import com.firestreak.task_service.dto.UpdateTaskRequest;
@@ -33,8 +34,8 @@ public class TaskController {
 
     @PostMapping("/complete/{taskId}")
     TaskDto completeTask(@PathVariable("taskId") Long taskId,
-                      @RequestBody Double completedCount){
-        return taskService.completeTask(taskId,completedCount);
+                      @RequestBody CompleteTaskDto completeTaskDto){
+        return taskService.completeTask(taskId,completeTaskDto);
     }
 
     @PatchMapping("/update/{taskId}")

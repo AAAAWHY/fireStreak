@@ -35,7 +35,7 @@ public class TaskEntity {
     Double targetCount;
 
     @Column(name = "completedCount")
-    Double completedCount;
+    Double completedCount = 0D;
 
     @Column(name = "lastCompletedAt")
     LocalDateTime lastCompletedAt;
