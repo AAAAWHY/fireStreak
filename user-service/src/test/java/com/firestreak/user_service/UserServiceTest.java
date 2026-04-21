@@ -5,7 +5,7 @@ import com.firestreak.user_service.dto.LoginRequest;
 import com.firestreak.user_service.dto.RegisterRequest;
 import com.firestreak.user_service.entity.UserEntity;
 import com.firestreak.user_service.repository.UserRepository;
-import com.firestreak.user_service.service.JWTService;
+import com.firestreak.user_service.service.JwtService;
 import com.firestreak.user_service.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -18,10 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.net.http.HttpResponse;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -37,7 +35,7 @@ public class UserServiceTest {
     @Mock
     PasswordEncoder passwordEncoder;
     @Mock
-    JWTService jwtService;
+    JwtService jwtService;
     @InjectMocks
     UserService userService;
 

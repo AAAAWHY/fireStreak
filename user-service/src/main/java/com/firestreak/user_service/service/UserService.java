@@ -6,9 +6,7 @@ import com.firestreak.user_service.enums.Role;
 import com.firestreak.user_service.entity.UserEntity;
 import com.firestreak.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.HttpException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,7 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JWTService jwtService;
+    private final JwtService jwtService;
 
 
     public String register(RegisterRequest request){
