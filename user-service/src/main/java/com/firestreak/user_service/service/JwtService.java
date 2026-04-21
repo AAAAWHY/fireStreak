@@ -16,7 +16,7 @@ import java.util.Date;
 import static java.lang.System.*;
 
 @Service
-public class JWTService {
+public class JwtService {
     @Value("${JWT_SECRET}")
     String secret;
     SecretKey secretKey;
