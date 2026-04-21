@@ -11,7 +11,7 @@ import javax.crypto.SecretKey;
 import java.util.Base64;
 
 @Service
-public class JWTService {
+public class JwtService {
     @Value("${JWT_SECRET}")
     String secret;
     SecretKey secretKey;
@@ -35,5 +35,14 @@ public class JWTService {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject());
+    }
+
+    public <T> T extractData(String token, String claimName, Class<T> type){
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get(claimName,type);
     }
 }
