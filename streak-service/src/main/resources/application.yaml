@@ -1,3 +1,22 @@
 spring:
   application:
     name: streak-service
+
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/streak_service
+    username: root
+    password: ${DB_PASSWORD}
+
+  jpa:
+    database: MYSQL
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+  thymeleaf:
+    check-template-location: false
+
+eureka:
+  client:
+    enabled: false
