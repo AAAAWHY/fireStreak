@@ -16,6 +16,12 @@ spring:
   thymeleaf:
     check-template-location: false
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
 eureka:
   client:
     enabled: false

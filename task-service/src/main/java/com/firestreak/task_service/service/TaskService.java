@@ -1,5 +1,6 @@
 package com.firestreak.task_service.service;
 
+import com.firestreak.task_service.config.RabbitMqConfig;
 import com.firestreak.task_service.dto.CompleteTaskDto;
 import com.firestreak.task_service.dto.CreateTaskRequest;
 import com.firestreak.task_service.dto.TaskDto;
@@ -9,11 +10,14 @@ import com.firestreak.task_service.enums.TaskType;
 import com.firestreak.task_service.exception.TaskAccessDeniedException;
 import com.firestreak.task_service.exception.TaskNotFoundException;
 import com.firestreak.task_service.exception.TaskValidationException;
+import com.firestreak.task_service.messaging.TaskCompletedEvent;
 import com.firestreak.task_service.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     public TaskDto createTask(CreateTaskRequest createTaskRequest){
         if(createTaskRequest.taskType().equals(TaskType.QUANTITATIVE) &&
@@ -75,6 +80,13 @@ public class TaskService {
         task.setCompletedCount(task.getCompletedCount()+count);
         task.setLastCompletedAt(LocalDateTime.now());
         taskRepository.save(task);
+        TaskCompletedEvent taskCompletedEvent = TaskCompletedEvent.builder()
+                                                                    .completedAt(LocalDate.now())
+                                                                    .taskId(taskId)
+                                                                    .userId(userId)
+                                                                    .count(count)
+                                                                    .build();
+        rabbitTemplate.convertAndSend(RabbitMqConfig.TASK_EXCHANGE, RabbitMqConfig.TASK_COMPLETED_ROUTING_KEY,taskCompletedEvent);
         return TaskDto.from(task);
     }
 
@@ -98,6 +110,7 @@ public class TaskService {
         if(updateTaskDto.title() != null) task.setTitle(updateTaskDto.title());
         if(updateTaskDto.folderId() != null) task.setFolderId(updateTaskDto.folderId());
         taskRepository.save(task);
+
         return TaskDto.from(task);
     }
 
