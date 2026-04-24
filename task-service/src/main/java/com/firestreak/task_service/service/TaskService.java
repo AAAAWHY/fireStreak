@@ -79,14 +79,17 @@ public class TaskService {
 
         task.setCompletedCount(task.getCompletedCount()+count);
         task.setLastCompletedAt(LocalDateTime.now());
-        taskRepository.save(task);
-        TaskCompletedEvent taskCompletedEvent = TaskCompletedEvent.builder()
-                                                                    .completedAt(LocalDate.now())
-                                                                    .taskId(taskId)
-                                                                    .userId(userId)
-                                                                    .count(count)
-                                                                    .build();
-        rabbitTemplate.convertAndSend(RabbitMqConfig.TASK_EXCHANGE, RabbitMqConfig.TASK_COMPLETED_ROUTING_KEY,taskCompletedEvent);
+        task = taskRepository.save(task);
+        if(task.getTaskType().equals(TaskType.BOOLEAN) ||
+                (task.getTaskType().equals(TaskType.QUANTITATIVE) && task.getCompletedCount()>=task.getTargetCount())) {
+            TaskCompletedEvent taskCompletedEvent = TaskCompletedEvent.builder()
+                    .completedAt(LocalDateTime.now())
+                    .taskId(taskId)
+                    .userId(userId)
+                    .count(count)
+                    .build();
+            rabbitTemplate.convertAndSend(RabbitMqConfig.TASK_EXCHANGE, RabbitMqConfig.TASK_COMPLETED_ROUTING_KEY, taskCompletedEvent);
+        }
         return TaskDto.from(task);
     }
 

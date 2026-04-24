@@ -2,10 +2,10 @@ package com.firestreak.task_service.messaging;
 
 import lombok.Builder;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 public record TaskCompletedEvent(Long userId,
                                  Long taskId,
-                                 LocalDate completedAt,
+                                 LocalDateTime completedAt,
                                  Double count) {}
