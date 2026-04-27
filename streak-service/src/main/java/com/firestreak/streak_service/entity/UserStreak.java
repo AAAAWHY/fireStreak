@@ -2,6 +2,7 @@ package com.firestreak.streak_service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,8 +17,8 @@ public class UserStreak {
     Long userId;
 
     @Column(name = "streakCount", nullable = false)
-    Long streakCount;
+    Integer streakCount;
 
     @Column(name = "lastCompletedAt")
-    LocalDateTime lastCompletedAt;
+    LocalDate lastCompletedAt;
 }

@@ -2,7 +2,7 @@ package com.firestreak.streak_service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @AllArgsConstructor
@@ -26,5 +26,5 @@ public class TaskCompletion {
     Long userId;
 
     @Column(name = "lastCompletedAt", nullable = false)
-    LocalDateTime lastCompletedAt;
+    LocalDate lastCompletedAt;
 }
