@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -78,7 +77,7 @@ public class TaskService {
         }
 
         task.setCompletedCount(task.getCompletedCount()+count);
-        task.setLastCompletedAt(LocalDateTime.now());
+        task.setLastCompletedAt(LocalDate.now());
         task = taskRepository.save(task);
         if(task.getTaskType().equals(TaskType.BOOLEAN) ||
                 (task.getTaskType().equals(TaskType.QUANTITATIVE) && task.getCompletedCount()>=task.getTargetCount())) {

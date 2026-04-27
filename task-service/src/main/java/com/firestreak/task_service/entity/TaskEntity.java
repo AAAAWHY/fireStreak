@@ -5,7 +5,7 @@ import com.firestreak.task_service.enums.TaskType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -38,7 +38,7 @@ public class TaskEntity {
     Double completedCount = 0D;
 
     @Column(name = "lastCompletedAt")
-    LocalDateTime lastCompletedAt;
+    LocalDate lastCompletedAt;
 
     @Column(name = "taskType", nullable = false)
     @Enumerated(value = EnumType.STRING)

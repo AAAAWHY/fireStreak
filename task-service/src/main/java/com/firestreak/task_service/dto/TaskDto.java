@@ -5,7 +5,7 @@ import com.firestreak.task_service.enums.TaskType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Builder
 public record TaskDto(
@@ -16,7 +16,7 @@ public record TaskDto(
         Long userId,
         Double targetCount,
         Double completedCount,
-        LocalDateTime lastCompletedAt,
+        LocalDate lastCompletedAt,
         TaskType taskType,
         Long folderId
 ) {
