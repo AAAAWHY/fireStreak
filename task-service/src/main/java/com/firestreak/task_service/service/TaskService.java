@@ -36,7 +36,7 @@ public class TaskService {
         TaskEntity taskEntity = TaskEntity.builder()
                 .title(createTaskRequest.title())
                 .description(createTaskRequest.description())
-                .frequencyMinutes(createTaskRequest.frequencyMinutes())
+                .frequencyDays(createTaskRequest.frequencyDays())
                 .taskType(createTaskRequest.taskType())
                 .folderId(createTaskRequest.folderId())
                 .targetCount(createTaskRequest.targetCount())
@@ -83,10 +83,11 @@ public class TaskService {
         if(task.getTaskType().equals(TaskType.BOOLEAN) ||
                 (task.getTaskType().equals(TaskType.QUANTITATIVE) && task.getCompletedCount()>=task.getTargetCount())) {
             TaskCompletedEvent taskCompletedEvent = TaskCompletedEvent.builder()
-                    .completedAt(LocalDateTime.now())
+                    .completedAt(LocalDate.now())
                     .taskId(taskId)
                     .userId(userId)
                     .count(count)
+                    .frequencyDays(task.getFrequencyDays())
                     .build();
             rabbitTemplate.convertAndSend(RabbitMqConfig.TASK_EXCHANGE, RabbitMqConfig.TASK_COMPLETED_ROUTING_KEY, taskCompletedEvent);
         }
@@ -108,7 +109,7 @@ public class TaskService {
             if(updateTaskDto.taskType().equals(TaskType.QUANTITATIVE) &&
                     (updateTaskDto.targetCount() == null || updateTaskDto.targetCount() == 0))
                 throw new TaskValidationException("targetCount required for quantitative task");
-        if(updateTaskDto.frequencyMinutes() != null) task.setFrequencyMinutes(updateTaskDto.frequencyMinutes());
+        if(updateTaskDto.frequencyDays() != null) task.setFrequencyDays(updateTaskDto.frequencyDays());
         if(updateTaskDto.targetCount() != null) task.setTargetCount(updateTaskDto.targetCount());
         if(updateTaskDto.title() != null) task.setTitle(updateTaskDto.title());
         if(updateTaskDto.folderId() != null) task.setFolderId(updateTaskDto.folderId());

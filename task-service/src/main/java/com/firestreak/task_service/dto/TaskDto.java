@@ -12,7 +12,7 @@ public record TaskDto(
         Long id,
         String title,
         String description,
-        Long frequencyMinutes,
+        Integer frequencyDays,
         Long userId,
         Double targetCount,
         Double completedCount,
@@ -28,7 +28,7 @@ public record TaskDto(
                 .userId(task.getUserId())
                 .description(task.getDescription())
                 .targetCount(task.getTargetCount())
-                .frequencyMinutes(task.getFrequencyMinutes())
+                .frequencyDays(task.getFrequencyDays())
                 .lastCompletedAt(task.getLastCompletedAt())
                 .folderId(task.getFolderId())
                 .title(task.getTitle())

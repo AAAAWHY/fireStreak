@@ -25,8 +25,8 @@ public class TaskEntity {
     @Column(name = "description")
     String description;
 
-    @Column(name = "frequencyMinutes", nullable = false)
-    Long frequencyMinutes;
+    @Column(name = "frequencyDays", nullable = false)
+    Integer frequencyDays;
 
     @Column(name = "userId", nullable = false)
     Long userId;

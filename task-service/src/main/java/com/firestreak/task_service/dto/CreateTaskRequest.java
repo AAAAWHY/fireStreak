@@ -12,7 +12,7 @@ public record CreateTaskRequest(
         TaskType taskType,
         String description,
         @NotNull(message = "frequency can't be null")
-        Long frequencyMinutes,
+        Integer frequencyDays,
         Double targetCount,
         Long folderId
 ) {}
