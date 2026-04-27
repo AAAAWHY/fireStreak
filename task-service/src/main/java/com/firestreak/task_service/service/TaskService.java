@@ -1,5 +1,6 @@
 package com.firestreak.task_service.service;
 
+import com.firestreak.task_service.config.RabbitMqConfig;
 import com.firestreak.task_service.dto.CompleteTaskDto;
 import com.firestreak.task_service.dto.CreateTaskRequest;
 import com.firestreak.task_service.dto.TaskDto;
@@ -9,12 +10,14 @@ import com.firestreak.task_service.enums.TaskType;
 import com.firestreak.task_service.exception.TaskAccessDeniedException;
 import com.firestreak.task_service.exception.TaskNotFoundException;
 import com.firestreak.task_service.exception.TaskValidationException;
+import com.firestreak.task_service.messaging.TaskCompletedEvent;
 import com.firestreak.task_service.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -22,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     public TaskDto createTask(CreateTaskRequest createTaskRequest){
         if(createTaskRequest.taskType().equals(TaskType.QUANTITATIVE) &&
@@ -31,7 +35,7 @@ public class TaskService {
         TaskEntity taskEntity = TaskEntity.builder()
                 .title(createTaskRequest.title())
                 .description(createTaskRequest.description())
-                .frequencyMinutes(createTaskRequest.frequencyMinutes())
+                .frequencyDays(createTaskRequest.frequencyDays())
                 .taskType(createTaskRequest.taskType())
                 .folderId(createTaskRequest.folderId())
                 .targetCount(createTaskRequest.targetCount())
@@ -73,8 +77,19 @@ public class TaskService {
         }
 
         task.setCompletedCount(task.getCompletedCount()+count);
-        task.setLastCompletedAt(LocalDateTime.now());
-        taskRepository.save(task);
+        task.setLastCompletedAt(LocalDate.now());
+        task = taskRepository.save(task);
+        if(task.getTaskType().equals(TaskType.BOOLEAN) ||
+                (task.getTaskType().equals(TaskType.QUANTITATIVE) && task.getCompletedCount()>=task.getTargetCount())) {
+            TaskCompletedEvent taskCompletedEvent = TaskCompletedEvent.builder()
+                    .completedAt(LocalDate.now())
+                    .taskId(taskId)
+                    .userId(userId)
+                    .count(count)
+                    .frequencyDays(task.getFrequencyDays())
+                    .build();
+            rabbitTemplate.convertAndSend(RabbitMqConfig.TASK_EXCHANGE, RabbitMqConfig.TASK_COMPLETED_ROUTING_KEY, taskCompletedEvent);
+        }
         return TaskDto.from(task);
     }
 
@@ -93,11 +108,12 @@ public class TaskService {
             if(updateTaskDto.taskType().equals(TaskType.QUANTITATIVE) &&
                     (updateTaskDto.targetCount() == null || updateTaskDto.targetCount() == 0))
                 throw new TaskValidationException("targetCount required for quantitative task");
-        if(updateTaskDto.frequencyMinutes() != null) task.setFrequencyMinutes(updateTaskDto.frequencyMinutes());
+        if(updateTaskDto.frequencyDays() != null) task.setFrequencyDays(updateTaskDto.frequencyDays());
         if(updateTaskDto.targetCount() != null) task.setTargetCount(updateTaskDto.targetCount());
         if(updateTaskDto.title() != null) task.setTitle(updateTaskDto.title());
         if(updateTaskDto.folderId() != null) task.setFolderId(updateTaskDto.folderId());
         taskRepository.save(task);
+
         return TaskDto.from(task);
     }
 

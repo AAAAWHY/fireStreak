@@ -7,6 +7,6 @@ import jakarta.validation.constraints.NotNull;
 public record UpdateTaskRequest(String title,
                                 TaskType taskType,
                                 String description,
-                                Long frequencyMinutes,
+                                Integer frequencyDays,
                                 Double targetCount,
                                 Long folderId) {}
