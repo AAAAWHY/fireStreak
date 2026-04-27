@@ -5,18 +5,18 @@ import com.firestreak.task_service.enums.TaskType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Builder
 public record TaskDto(
         Long id,
         String title,
         String description,
-        Long frequencyMinutes,
+        Integer frequencyDays,
         Long userId,
         Double targetCount,
         Double completedCount,
-        LocalDateTime lastCompletedAt,
+        LocalDate lastCompletedAt,
         TaskType taskType,
         Long folderId
 ) {
@@ -28,7 +28,7 @@ public record TaskDto(
                 .userId(task.getUserId())
                 .description(task.getDescription())
                 .targetCount(task.getTargetCount())
-                .frequencyMinutes(task.getFrequencyMinutes())
+                .frequencyDays(task.getFrequencyDays())
                 .lastCompletedAt(task.getLastCompletedAt())
                 .folderId(task.getFolderId())
                 .title(task.getTitle())
