@@ -125,6 +125,7 @@ public class StreakService {
                 .build();
         TaskStreak taskStreak = TaskStreak.builder()
                 .streakCount(1)
+                .freezeStreakCount(0)
                 .lastCompletedAt(taskCompletedEvent.completedAt())
                 .taskId(taskCompletedEvent.taskId())
                 .userId(taskCompletedEvent.userId())
@@ -140,6 +141,7 @@ public class StreakService {
     private TaskStreak createInitialTaskStreak(TaskCompletedEvent taskCompletedEvent){
         TaskStreak taskStreak = TaskStreak.builder()
                 .streakCount(1)
+                .freezeStreakCount(0)
                 .lastCompletedAt(taskCompletedEvent.completedAt())
                 .taskId(taskCompletedEvent.taskId())
                 .userId(taskCompletedEvent.userId())

@@ -14,9 +14,18 @@ spring:
       ddl-auto: update
     open-in-view: false
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
   thymeleaf:
     check-template-location: false
 
 eureka:
   client:
     enabled: false
+
+server:
+  port: 8082

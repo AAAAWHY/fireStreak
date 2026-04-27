@@ -34,7 +34,7 @@ public class TaskEntity {
     @Column(name = "targetCount")
     Double targetCount;
 
-    @Column(name = "completedCount")
+    @Column(name = "completedCount", nullable = false)
     Double completedCount = 0D;
 
     @Column(name = "lastCompletedAt")
