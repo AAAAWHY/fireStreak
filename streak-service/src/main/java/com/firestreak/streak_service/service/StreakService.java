@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,9 +34,9 @@ public class StreakService {
         }
         taskStreak = taskStreakRepository.findById(taskCompletedEvent.taskId()).get();
 
-        int lastPeriodCompleted = (int) ChronoUnit.DAYS.between(taskStreak.getStreakStartDate(), taskStreak.getLastCompletedAt()) / taskCompletedEvent.frequencyDays();
-        int curPeriodCompleted = (int) ChronoUnit.DAYS.between(taskStreak.getStreakStartDate(), taskCompletedEvent.completedAt()) / taskCompletedEvent.frequencyDays();
-        int periodDiff = curPeriodCompleted-lastPeriodCompleted;
+        int lastCompletedPeriod = (int) ChronoUnit.DAYS.between(taskStreak.getStreakStartDate(), taskStreak.getLastCompletedAt()) / taskCompletedEvent.frequencyDays();
+        int curCompletedPeriod = (int) ChronoUnit.DAYS.between(taskStreak.getStreakStartDate(), taskCompletedEvent.completedAt()) / taskCompletedEvent.frequencyDays();
+        int periodDiff = curCompletedPeriod-lastCompletedPeriod;
 
         if(periodDiff == 1) {
             taskStreak.setStreakCount(taskStreak.getStreakCount() + 1);
@@ -52,6 +53,12 @@ public class StreakService {
     }
 
 
+    public void everyDayCheck(){
+        List<UserStreak> userStreaks = userStreakRepository.findAll();
+        for(UserStreak userStreak : userStreaks){
+            checkUserStreak(userStreak);
+        }
+    }
 
 
 
@@ -66,6 +73,38 @@ public class StreakService {
 
 
 
+
+    private void checkUserStreak(UserStreak userStreak){
+        List<TaskStreak> taskStreaks = taskStreakRepository.findAllByUserId(userStreak.getUserId());
+        boolean allTasksCompleted = true;
+        boolean atLeasOneCompleted = false;
+        for(TaskStreak taskStreak : taskStreaks){
+            if(checkTaskStreak(taskStreak))
+                atLeasOneCompleted = true;
+            else allTasksCompleted = false;
+            taskStreakRepository.save(taskStreak);
+        }
+        if(allTasksCompleted)
+            userStreak.setHardStreakCount(userStreak.getHardStreakCount()+1);
+        if(atLeasOneCompleted)
+            userStreak.setStreakCount(userStreak.getStreakCount()+1);
+        userStreakRepository.save(userStreak);
+    }
+
+    private boolean checkTaskStreak(TaskStreak taskStreak){
+        int lastCompletedPeriod = (int) ChronoUnit.DAYS.between(taskStreak.getStreakStartDate(), taskStreak.getLastCompletedAt()) / taskStreak.getFrequencyDays();
+        int curPeriod = (int) ChronoUnit.DAYS.between(taskStreak.getStreakStartDate(), LocalDate.now()) / taskStreak.getFrequencyDays();
+        int periodDiff = curPeriod-lastCompletedPeriod;
+        if(periodDiff>=2){
+            if(taskStreak.getFreezeStreakCount() > 0){
+                taskStreak.setFreezeStreakCount(taskStreak.getFreezeStreakCount()-1);
+                return true;
+            }
+            taskStreak.setStreakCount(0);
+            return false;
+        }
+        return true;
+    }
 
 
 

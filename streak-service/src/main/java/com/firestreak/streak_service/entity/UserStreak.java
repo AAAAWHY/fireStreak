@@ -21,4 +21,7 @@ public class UserStreak {
 
     @Column(name = "lastCompletedAt")
     LocalDate lastCompletedAt;
+
+    @Column(name = "hardStreak")
+    Integer hardStreakCount;
 }
