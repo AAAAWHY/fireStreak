@@ -39,6 +39,7 @@ public class TaskService {
                 .taskType(createTaskRequest.taskType())
                 .folderId(createTaskRequest.folderId())
                 .targetCount(createTaskRequest.targetCount())
+                .completedCount(0d)
                 .userId((Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).build();
         taskEntity = taskRepository.save(taskEntity);
         return TaskDto.from(taskEntity);
