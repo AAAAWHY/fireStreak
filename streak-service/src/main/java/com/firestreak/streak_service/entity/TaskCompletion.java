@@ -25,6 +25,6 @@ public class TaskCompletion {
     @Column(name = "userId", nullable = false)
     Long userId;
 
-    @Column(name = "lastCompletedAt", nullable = false)
-    LocalDate lastCompletedAt;
+    @Column(name = "CompletedAt", nullable = false)
+    LocalDate completedAt;
 }

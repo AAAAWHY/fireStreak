@@ -19,9 +19,6 @@ public class UserStreak {
     @Column(name = "streakCount", nullable = false)
     Integer streakCount;
 
-    @Column(name = "lastCompletedAt")
-    LocalDate lastCompletedAt;
-
     @Column(name = "hardStreak")
     Integer hardStreakCount;
 }
