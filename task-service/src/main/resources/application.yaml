@@ -27,4 +27,4 @@ eureka:
     enabled: false
 
 server:
-  port: 8081
+  port: 8082
