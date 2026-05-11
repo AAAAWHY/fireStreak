@@ -17,7 +17,7 @@ import java.util.List;
 public class HeaderAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String userId = request.getHeader("X-user-id");
+        Long userId = Long.parseLong(request.getHeader("X-user-id"));
         String roleStr = request.getHeader("X-role");
         GrantedAuthority role = new SimpleGrantedAuthority(roleStr);
 
