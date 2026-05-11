@@ -1,44 +1,51 @@
 package com.firestreak.gateway.config;
 
 import com.firestreak.gateway.service.JwtService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
 
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
-public class JwtFilter extends OncePerRequestFilter {
-    JwtService jwtService;
-
+public class JwtFilter implements WebFilter {
+    private final JwtService jwtService;
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = request.getHeader("Authorization");
-        if(!token.startsWith("Bearer ")){
-            response.sendError(401, "invalid jwt");
-            return;
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        String token = exchange.getRequest().getHeaders().getFirst("Authorization");
+
+        if(token==null || !token.startsWith("Bearer ")){
+            exchange.getResponse().setStatusCode(HttpStatusCode.valueOf(401));
+            byte[] bytes = "invalid jwt".getBytes(StandardCharsets.UTF_8);
+            DataBuffer dataBuffer = exchange.getResponse().bufferFactory().wrap(bytes);
+            return exchange.getResponse().writeWith(Mono.just(dataBuffer));
         }
         token = token.substring(7);
 
         if(!jwtService.checkToken(token)){
-            response.sendError(401, "invalid jwt");
-            return;
+            exchange.getResponse().setStatusCode(HttpStatusCode.valueOf(401));
+            byte[] bytes = "invalid jwt".getBytes(StandardCharsets.UTF_8);
+            DataBuffer dataBuffer = exchange.getResponse().bufferFactory().wrap(bytes);
+            return exchange.getResponse().writeWith(Mono.just(dataBuffer));
         }
         String userId = ""+jwtService.getUserId(token);
-        String role = jwtService.extractData(token, "role", String.class);
-        response.addHeader("X-user-id", userId);
-        response.addHeader("X-role", role);
-        filterChain.doFilter(request,response);
+        String roleStr = jwtService.extractData(token, "role", String.class);
 
+        ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                .header("X-user-id", userId)
+                .header("X-role", roleStr)
+                .build();
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userId, null, )
-        SecurityContextHolder.getContext().setAuthentication();
+        exchange = exchange.mutate().request(mutatedRequest).build();
+        return chain.filter(exchange);
     }
 }
