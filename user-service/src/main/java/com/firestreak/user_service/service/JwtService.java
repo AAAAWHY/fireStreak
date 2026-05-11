@@ -35,33 +35,4 @@ public class JwtService {
                 .signWith(secretKey)
                 .compact();
     }
-
-    public boolean checkToken(String token){
-        try {
-            Jwts.parser().verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (JwtException e) {
-            return false;
-        }
-    }
-
-    public <T> T extractData(String token, String claimName, Class<T> type){
-        Claims claims = Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get(claimName, type);
-    }
-
-    public Long extractId(String token){
-        return Long.parseLong(Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject());
-    }
 }

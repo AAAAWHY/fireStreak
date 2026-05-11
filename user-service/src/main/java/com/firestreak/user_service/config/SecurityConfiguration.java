@@ -26,7 +26,7 @@ public class SecurityConfiguration{
                         .requestMatchers("/api/users/login").permitAll()
                         .requestMatchers("/api/users/registration").permitAll()
                         .anyRequest().authenticated()
-                )
+                ).addFilterBefore(headerAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

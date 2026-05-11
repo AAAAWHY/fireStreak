@@ -4,19 +4,26 @@ spring:
 
   cloud:
     gateway:
-      routes:
-        - id: user-service
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/users/**
-        - id: task-service
-          uri: http://localhost:8082
-          predicates:
-            - Path=/api/tasks/**
-        - id: streak-service
-          uri: http://localhost:8083
-          predicates:
-            - Path=/api/streaks/**, /api/completions/**
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/users/**
+            - id: task-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/tasks/**
+            - id: streak-service
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/streaks/**, /api/completions/**
 
 server:
   port: 8080
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.security: DEBUG

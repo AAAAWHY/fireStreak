@@ -25,4 +25,10 @@ public class HeaderAuthFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(auth);
         filterChain.doFilter(request,response);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return (request.getRequestURI().equals("/api/users/login") ||
+                request.getRequestURI().equals("/api/users/registration"));
+    }
 }
