@@ -11,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfiguration{
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -18,14 +19,19 @@ public class SecurityConfiguration{
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtFilter jwtFilter) throws Exception{
-        httpSecurity
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, HeaderAuthFilter headerAuthFilter) throws Exception{
+         return httpSecurity
                 .csrf(csrf->csrf.disable())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/users/login").permitAll()
-                .requestMatchers("/api/users/registration").permitAll()
-                .anyRequest().authenticated()
-                ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/users/login").permitAll()
+                        .requestMatchers("/api/users/registration").permitAll()
+                        .anyRequest().authenticated()
+                ).addFilterBefore(headerAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 
-        return httpSecurity.build();
+    @Bean
+    HeaderAuthFilter headerAuthFilter(){
+        return new HeaderAuthFilter();
     }
 }
