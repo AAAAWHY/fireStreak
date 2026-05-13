@@ -35,6 +35,14 @@ public class StreakService {
     public void handleCompletedTask(TaskCompletedEvent taskCompletedEvent){
         TaskStreak taskStreak;
 
+        TaskCompletion taskCompletion = TaskCompletion.builder()
+                .taskId(taskCompletedEvent.taskId())
+                .completedCount(taskCompletedEvent.count())
+                .completedAt(taskCompletedEvent.completedAt())
+                .userId(taskCompletedEvent.userId())
+                .build();
+        taskCompletionRepository.save(taskCompletion);
+
         if(!userStreakRepository.existsById(taskCompletedEvent.userId())){
             createInitialUserStreak(taskCompletedEvent);
             return;
@@ -62,14 +70,6 @@ public class StreakService {
         }
         taskStreak.setLastCompletedAt(taskCompletedEvent.completedAt());
         taskStreakRepository.save(taskStreak);
-
-        TaskCompletion taskCompletion = TaskCompletion.builder()
-                .taskId(taskCompletedEvent.taskId())
-                .completedCount(taskCompletedEvent.count())
-                .completedAt(taskCompletedEvent.completedAt())
-                .userId(taskCompletedEvent.userId())
-                .build();
-        taskCompletionRepository.save(taskCompletion);
     }
 
 
@@ -188,6 +188,7 @@ public class StreakService {
     private UserStreak createInitialUserStreak(TaskCompletedEvent taskCompletedEvent){
         UserStreak userStreak = UserStreak.builder()
                 .streakCount(1)
+                .hardStreakCount(0)
                 .userId(taskCompletedEvent.userId())
                 .build();
         TaskStreak taskStreak = TaskStreak.builder()

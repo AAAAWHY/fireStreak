@@ -19,6 +19,6 @@ public class UserStreak {
     @Column(name = "streakCount", nullable = false)
     Integer streakCount;
 
-    @Column(name = "hardStreak")
+    @Column(name = "hardStreak", nullable = false)
     Integer hardStreakCount;
 }
