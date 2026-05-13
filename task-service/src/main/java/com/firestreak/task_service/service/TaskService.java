@@ -113,6 +113,7 @@ public class TaskService {
         if(updateTaskDto.targetCount() != null) task.setTargetCount(updateTaskDto.targetCount());
         if(updateTaskDto.title() != null) task.setTitle(updateTaskDto.title());
         if(updateTaskDto.folderId() != null) task.setFolderId(updateTaskDto.folderId());
+        if(updateTaskDto.taskType() != null) task.setTaskType(updateTaskDto.taskType());
         taskRepository.save(task);
 
         return TaskDto.from(task);
