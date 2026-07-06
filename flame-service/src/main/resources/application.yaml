@@ -1,3 +1,54 @@
 spring:
   application:
     name: flame-service
+
+  datasource:
+    url:
+    username:
+    password:
+
+  jpa:
+    database: MYSQL
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+
+game:
+  productivity-exp:
+    COMMON: 1.5
+    RARE: 1.6
+    EPIC: 1.7
+    LEGENDARY: 1.8
+    MYTHIC: 1.9
+    DIVINE: 2.0
+
+  upgrade-cost-exp:
+    COMMON: 1.7
+    RARE: 1.8
+    EPIC: 1.9
+    LEGENDARY: 2.0
+    MYTHIC: 2.1
+    DIVINE: 2.2
+
+  jump-lvl:
+    COMMON: 25
+    RARE: 20
+    EPIC: 16
+    LEGENDARY: 13
+    MYTHIC: 11
+    DIVINE: 10
+
+  jump-scale:
+    COMMON: 1.8
+    RARE: 1.7
+    EPIC: 1.6
+    LEGENDARY: 1.5
+    MYTHIC: 1.4
+    DIVINE: 1.07
+
+  loot-box-sigma: 0.75
+  loot-box-mu-max: 4.8
+  loot-box-grades: 20
+  loot-box-base-cost: 150
+  loot-box-grade-multiplier: 1.65
