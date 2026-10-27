@@ -51,6 +51,7 @@ public class FlameService {
     }
 
     public void dailyWalletUpdate(DailyStreakEvent dailyStreakEvent){
+        System.out.println("GOT EVENT: " + dailyStreakEvent);
         long userId = dailyStreakEvent.userId();
         int streak = dailyStreakEvent.streakCount();
         UserWallet wallet = userWalletRepository.findById(userId).get();
@@ -74,7 +75,7 @@ public class FlameService {
         List<Long> cardIds = cats.stream().map(UserCat::getCatCardId).distinct().toList();
         Map<Long, CatCard> cards = catCardRepository.findAllByIdIn(cardIds).stream()
                 .collect(Collectors.toMap(CatCard::getId, catCard -> catCard));
-        return cats.stream().map(cat-> catDtoMapper(cat, cards.get(cat.geппшtCatCardId()))).toList();
+        return cats.stream().map(cat-> catDtoMapper(cat, cards.get(cat.getCatCardId()))).toList();
     }
 
     public UserCatDto upgradeCat(Long catId){

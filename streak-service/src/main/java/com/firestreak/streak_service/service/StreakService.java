@@ -16,11 +16,9 @@ import com.firestreak.streak_service.repository.UserStreakRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -73,7 +71,7 @@ public class StreakService {
     }
 
 
-    public void everyDayCheck(){
+    public void everyDayTaskCheck(){
         List<UserStreak> userStreaks = userStreakRepository.findAll();
         for(UserStreak userStreak : userStreaks){
             checkUserStreak(userStreak);
@@ -81,7 +79,9 @@ public class StreakService {
     }
 
 
-
+    public void dayEnd(){
+        everyDayTaskCheck();
+    }
 
 
 
@@ -96,6 +96,11 @@ public class StreakService {
 
     private void checkUserStreak(UserStreak userStreak){
         List<TaskStreak> taskStreaks = taskStreakRepository.findAllByUserId(userStreak.getUserId());
+        if(taskStreaks.isEmpty()){
+            userStreak.setHardStreakCount(0);
+            userStreak.setStreakCount(0);
+        }
+
         boolean allTasksCompleted = true;
         boolean atLeasOneCompleted = false;
         for(TaskStreak taskStreak : taskStreaks){
@@ -106,8 +111,13 @@ public class StreakService {
         }
         if(allTasksCompleted)
             userStreak.setHardStreakCount(userStreak.getHardStreakCount()+1);
+        else
+            userStreak.setHardStreakCount(0);
         if(atLeasOneCompleted)
             userStreak.setStreakCount(userStreak.getStreakCount()+1);
+        else
+            userStreak.setStreakCount(0);
+
         userStreakRepository.save(userStreak);
     }
 

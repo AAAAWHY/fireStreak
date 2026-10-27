@@ -5,10 +5,7 @@ import com.firestreak.streak_service.dto.TaskStreakDto;
 import com.firestreak.streak_service.dto.UserStreakDto;
 import com.firestreak.streak_service.service.StreakService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,5 +39,10 @@ public class StreakController {
     @GetMapping("/completions/task/{id}")
     List<TaskCompletionDto> getTaskCompletionsOfTask(@PathVariable("id") Long taskId){
         return streakService.getTaskCompletionsOfTask(taskId);
+    }
+
+    @PostMapping("/streaks/day-end")
+    void dayEndTest(){
+        streakService.dayEnd();
     }
 }

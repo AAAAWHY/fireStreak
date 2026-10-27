@@ -18,6 +18,7 @@ public class JwtService {
     @PostConstruct
     public void init(){
         secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecret));
+        System.out.println(jwtSecret);
     }
 
     public boolean checkToken(String token){

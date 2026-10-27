@@ -1,10 +1,12 @@
 package com.firestreak.task_service.controller;
 
 
+import com.firestreak.task_service.exception.NoMessageException;
 import com.firestreak.task_service.exception.TaskAccessDeniedException;
 import com.firestreak.task_service.exception.TaskNotFoundException;
 import com.firestreak.task_service.exception.TaskValidationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,6 +37,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<String> methodArgumentNotValidHandler(MethodArgumentNotValidException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(NoMessageException.class)
+    ResponseEntity<String> moMessageExceptionHandler(NoMessageException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 

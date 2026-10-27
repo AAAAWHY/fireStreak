@@ -3,16 +3,16 @@ spring:
     name: flame-service
 
   datasource:
-    url:
-    username:
-    password:
+    url: jdbc:mariadb://localhost:3306/flame_service
+    username: root
+    password: ${DB_PASSWORD}
 
   jpa:
-    database: MYSQL
     hibernate:
       ddl-auto: update
     open-in-view: false
 
+eureka.client.enabled: false
 
 game:
   productivity-exp:
@@ -52,3 +52,7 @@ game:
   loot-box-grades: 20
   loot-box-base-cost: 150
   loot-box-grade-multiplier: 1.65
+
+
+server:
+  port: 8084

@@ -6,11 +6,16 @@ import com.firestreak.user_service.enums.Role;
 import com.firestreak.user_service.entity.UserEntity;
 import com.firestreak.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import com.firestreak.user_service.messaging.CreateWalletEvent;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import static com.firestreak.user_service.config.RabbitMqConfig.CREATE_WALLET_EXCHANGE;
+import static com.firestreak.user_service.config.RabbitMqConfig.CREATE_WALLET_KEY;
 
 
 @Service
@@ -19,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RabbitTemplate rabbitTemplate;
 
 
     public String register(RegisterRequest request){
@@ -40,6 +46,9 @@ public class UserService {
                 .build();
 
         user = userRepository.save(user);
+
+        rabbitTemplate.convertAndSend(CREATE_WALLET_EXCHANGE,CREATE_WALLET_KEY,new CreateWalletEvent(user.getId()));
+
         return jwtService.generateJWT(user.getId(), user.getRole());
     }
 

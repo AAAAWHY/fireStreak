@@ -1,0 +1,22 @@
+services:
+  gateway:
+    build: /gateway
+    environment:
+      /gateway/.env
+    depends_on:
+
+
+
+
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

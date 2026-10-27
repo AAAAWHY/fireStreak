@@ -1,12 +1,12 @@
 package com.firestreak.task_service.service;
 
+import com.firestreak.task_service.config.AiClient;
 import com.firestreak.task_service.config.RabbitMqConfig;
-import com.firestreak.task_service.dto.CompleteTaskDto;
-import com.firestreak.task_service.dto.CreateTaskRequest;
-import com.firestreak.task_service.dto.TaskDto;
-import com.firestreak.task_service.dto.UpdateTaskRequest;
+import com.firestreak.task_service.dto.*;
 import com.firestreak.task_service.entity.TaskEntity;
+import com.firestreak.task_service.enums.Status;
 import com.firestreak.task_service.enums.TaskType;
+import com.firestreak.task_service.exception.NoMessageException;
 import com.firestreak.task_service.exception.TaskAccessDeniedException;
 import com.firestreak.task_service.exception.TaskNotFoundException;
 import com.firestreak.task_service.exception.TaskValidationException;
@@ -24,6 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TaskService {
+    private final AiClient aiClient;
     private final TaskRepository taskRepository;
     private final RabbitTemplate rabbitTemplate;
 
@@ -61,7 +62,7 @@ public class TaskService {
         return tasks.stream().map(TaskDto::from).toList();
     }
 
-    public TaskDto completeTask(Long taskId, CompleteTaskDto completeTaskDto){
+    public CompleteTaskResponse completeTask(Long taskId, CompleteTaskDto completeTaskDto){
         Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         TaskEntity task = taskRepository.findById(taskId).orElseThrow(()-> {
             return new TaskNotFoundException(taskId);
@@ -69,29 +70,66 @@ public class TaskService {
         if(!task.getUserId().equals(userId))
             throw new TaskAccessDeniedException(taskId);
         Double count;
-        if(task.getTaskType().equals(TaskType.BOOLEAN))
-            count = 1D;
-        else{
-            count = completeTaskDto.count();
-            if(count == null)
-                throw new TaskValidationException("Completed count is required");
+        boolean alreadyDone = ((task.getTaskType().equals(TaskType.BOOLEAN) && task.getCompletedCount()>=1) ||
+                (task.getTaskType().equals(TaskType.QUANTITATIVE) && task.getCompletedCount()>=task.getTargetCount()));
+
+        if(!alreadyDone) {
+            if (task.getTaskType().equals(TaskType.BOOLEAN))
+                count = 1D;
+            else {
+                count = completeTaskDto.count();
+                if (count == null)
+                    throw new TaskValidationException("Completed count is required");
+            }
         }
+        else
+            count=0D;
 
         task.setCompletedCount(task.getCompletedCount()+count);
         task.setLastCompletedAt(LocalDate.now());
         task = taskRepository.save(task);
+
+        if(alreadyDone) {
+            if (completeTaskDto.message() == null || completeTaskDto.message().isBlank())
+                throw new NoMessageException();
+            AskModelDto askModelDto = new AskModelDto(userId,
+                    taskId,
+                    completeTaskDto.message(),
+                    task.getTitle(),
+                    task.getDescription(),
+                    task.getTargetCount());
+            VerdictDto verdictDto = aiClient.aiVerdict(askModelDto);
+
+            if(verdictDto.status().equals(Status.OK)) {
+                TaskCompletedEvent taskCompletedEvent = TaskCompletedEvent.builder()
+                        .completedAt(LocalDate.now())
+                        .taskId(taskId)
+                        .userId(userId)
+                        .count(count)
+                        .frequencyDays(task.getFrequencyDays())
+                        .build();
+                rabbitTemplate.convertAndSend(RabbitMqConfig.TASK_EXCHANGE, RabbitMqConfig.TASK_COMPLETED_ROUTING_KEY, taskCompletedEvent);
+                return new CompleteTaskResponse(TaskDto.from(task),
+                        false,
+                        verdictDto);
+            }
+            else
+                return new CompleteTaskResponse(
+                        TaskDto.from(task),
+                        true,
+                        verdictDto);
+        }
+
+
         if(task.getTaskType().equals(TaskType.BOOLEAN) ||
                 (task.getTaskType().equals(TaskType.QUANTITATIVE) && task.getCompletedCount()>=task.getTargetCount())) {
-            TaskCompletedEvent taskCompletedEvent = TaskCompletedEvent.builder()
-                    .completedAt(LocalDate.now())
-                    .taskId(taskId)
-                    .userId(userId)
-                    .count(count)
-                    .frequencyDays(task.getFrequencyDays())
-                    .build();
-            rabbitTemplate.convertAndSend(RabbitMqConfig.TASK_EXCHANGE, RabbitMqConfig.TASK_COMPLETED_ROUTING_KEY, taskCompletedEvent);
+            return new CompleteTaskResponse(TaskDto.from(task),
+                    true,
+                    null);
         }
-        return TaskDto.from(task);
+        return new CompleteTaskResponse(TaskDto.from(task),
+                false,
+                null);
     }
 
     public TaskDto updateTask(UpdateTaskRequest updateTaskDto, long taskId){
